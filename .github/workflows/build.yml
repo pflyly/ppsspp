@@ -236,7 +236,15 @@ jobs:
       if: matrix.id != 'macos'
       with:
         key: ${{ matrix.id }}
-
+        
+    - name: Setup ccache for macos
+      uses: actions/cache@v4
+      with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-${{ matrix.id }}-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.id }}-ccache-
+            
     - name: Execute build
       env:
         CC: ${{ matrix.cc }}
@@ -258,6 +266,7 @@ jobs:
           export CCACHE_COMPILERCHECK=content
         fi
         ${{ matrix.args }}
+        ccache -s -v
 
     - name: Package build
       if: matrix.extra == 'test'
